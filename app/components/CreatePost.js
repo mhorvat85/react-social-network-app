@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Page from "./Page";
 import Axios from "axios";
+import DispatchContext from "../DispatchContext";
 
-function CreatePost(props) {
+function CreatePost() {
   const [title, setTitle] = useState();
   const [body, setBody] = useState();
   const navigate = useNavigate();
+  const appDispatch = useContext(DispatchContext);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -16,7 +18,7 @@ function CreatePost(props) {
         body,
         token: localStorage.getItem("socialAppToken"),
       });
-      props.addFlashMessage("Congrats, you successfully created a post.");
+      appDispatch({ type: "flashMessage", value: "Congrats, you created a new post." });
       navigate(`/post/${response.data}`);
       console.log("New post was created.");
     } catch (e) {
