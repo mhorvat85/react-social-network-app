@@ -1,5 +1,6 @@
-import React, { useState, useReducer } from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
+import { useImmerReducer } from "use-immer";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Axios from "axios";
 Axios.defaults.baseURL = "http://localhost:8080";
@@ -7,6 +8,7 @@ Axios.defaults.baseURL = "http://localhost:8080";
 import StateContext from "./StateContext";
 import DispatchContext from "./DispatchContext";
 
+//Components
 import Header from "./components/Header";
 import HomeGuest from "./components/HomeGuest";
 import Home from "./components/Home";
@@ -16,25 +18,45 @@ import Terms from "./components/Terms";
 import CreatePost from "./components/CreatePost";
 import ViewSinglePost from "./components/ViewSinglePost";
 import FlashMessages from "./components/FlashMessages";
+import Profile from "./components/Profile";
 
 const Main = () => {
   const initialState = {
     loggedIn: Boolean(localStorage.getItem("socialAppToken")),
     flashMessages: [],
+    user: {
+      token: localStorage.getItem("socialAppToken"),
+      username: localStorage.getItem("socialAppUsername"),
+      avatar: localStorage.getItem("socialAppAvatar"),
+    },
   };
 
-  function ourReducer(state, action) {
+  function ourReducer(draft, action) {
     switch (action.type) {
       case "login":
-        return { loggedIn: true, flashMessages: state.flashMessages };
+        draft.loggedIn = true;
+        draft.user = action.data;
+        break;
       case "logout":
-        return { loggedIn: false, flashMessages: state.flashMessages };
+        draft.loggedIn = false;
+        break;
       case "flashMessage":
-        return { loggedIn: state.loggedIn, flashMessages: state.flashMessages.concat(action.value) };
+        draft.flashMessages.push(action.value);
+        break;
     }
   }
 
-  const [state, dispatch] = useReducer(ourReducer, initialState);
+  const [state, dispatch] = useImmerReducer(ourReducer, initialState);
+
+  useEffect(() => {
+    if (state.loggedIn) {
+      localStorage.setItem("socialAppToken", state.user.token);
+      localStorage.setItem("socialAppUsername", state.user.username);
+      localStorage.setItem("socialAppAvatar", state.user.avatar);
+    } else {
+      localStorage.clear();
+    }
+  }, [state.loggedIn]);
 
   return (
     <StateContext.Provider value={state}>
@@ -44,6 +66,7 @@ const Main = () => {
           <Header />
           <Routes>
             <Route path="/" element={state.loggedIn ? <Home /> : <HomeGuest />} />
+            <Route path="/profile/:username/*" element={<Profile />} />
             <Route path="/post/:id" element={<ViewSinglePost />} />
             <Route path="/create-post" element={<CreatePost />} />
             <Route path="/about-us" element={<About />} />
