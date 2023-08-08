@@ -9,10 +9,11 @@ function ProfilePosts() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const req = Axios.CancelToken.source();
+    const controller = new AbortController();
+    const signal = controller.signal;
     async function fetchPosts() {
       try {
-        const response = await Axios.get(`/profile/${username}/posts`, { cancelToken: req.token });
+        const response = await Axios.get(`/profile/${username}/posts`, { signal });
         setPosts(response.data);
         setIsLoading(false);
       } catch (e) {
@@ -21,7 +22,7 @@ function ProfilePosts() {
     }
     fetchPosts();
     return () => {
-      req.cancel();
+      controller.abort();
     };
   }, []);
 

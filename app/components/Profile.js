@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import Axios from "axios";
 import StateContext from "../StateContext";
 import ProfilePosts from "./ProfilePosts";
+import NotFound from "./NotFound";
 
 function Profile() {
   const { username } = useParams();
@@ -14,26 +15,32 @@ function Profile() {
     isFollowing: false,
     counts: { postCount: "", followerCount: "", followingCount: "" },
   });
+  const [isFound, setIsFound] = useState(false);
 
   useEffect(() => {
-    const req = Axios.CancelToken.source();
+    const controller = new AbortController();
+    const signal = controller.signal;
     async function fetchData() {
       try {
-        const response = await Axios.post(
-          `/profile/${username}`,
-          { token: appState.user.token },
-          { cancelToken: req.token }
-        );
-        setProfileData(response.data);
+        const response = await Axios.post(`/profile/${username}`, { token: appState.user.token }, { signal });
+        if (response.data) {
+          setIsFound(true);
+          setProfileData(response.data);
+        } else {
+          setIsFound(false);
+        }
       } catch (e) {
+        console.log(e);
         console.log("There was a problem.");
       }
     }
     fetchData();
     return () => {
-      req.cancel();
+      controller.abort();
     };
   }, []);
+
+  if (!isFound) return <NotFound />;
 
   return (
     <Page title="Profile Screen">
