@@ -84,10 +84,11 @@ function EditPost() {
   }
 
   useEffect(() => {
-    const req = Axios.CancelToken.source();
+    const controller = new AbortController();
+    const signal = controller.signal;
     async function fetchPost() {
       try {
-        const response = await Axios.get(`/post/${state.id}`, { cancelToken: req.token });
+        const response = await Axios.get(`/post/${state.id}`, { signal });
         if (response.data) {
           dispatch({ type: "fetchComplete", value: response.data });
           if (appState.user.username !== response.data.author.username) {
@@ -103,7 +104,7 @@ function EditPost() {
     }
     fetchPost();
     return () => {
-      req.cancel();
+      controller.abort();
     };
   }, []);
 

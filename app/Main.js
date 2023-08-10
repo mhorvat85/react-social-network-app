@@ -84,6 +84,26 @@ const Main = () => {
     }
   }, [state.loggedIn]);
 
+  useEffect(() => {
+    if (state.loggedIn) {
+      const controller = new AbortController();
+      const signal = controller.signal;
+      async function fetchResults() {
+        try {
+          const response = await Axios.post("/checkToken", { token: state.user.token }, { signal });
+          if (!response.data) {
+            dispatch({ type: "logout" });
+            dispatch({ type: "flashMessage", value: "Your session has expired. Please log in again." });
+          }
+        } catch (e) {
+          console.log("There was a problem or the request was cancelled.");
+        }
+      }
+      fetchResults();
+      return () => controller.abort();
+    }
+  }, []);
+
   return (
     <StateContext.Provider value={state}>
       <DispatchContext.Provider value={dispatch}>
