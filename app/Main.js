@@ -23,6 +23,7 @@ import Profile from "./components/Profile";
 import EditPost from "./components/EditPost";
 import NotFound from "./components/NotFound";
 import Search from "./components/Search";
+import Chat from "./components/Chat";
 
 const Main = () => {
   const initialState = {
@@ -34,6 +35,8 @@ const Main = () => {
       avatar: localStorage.getItem("socialAppAvatar"),
     },
     isSearchOpen: false,
+    isChatOpen: false,
+    unreadChatCount: 0,
   };
 
   function ourReducer(draft, action) {
@@ -53,6 +56,18 @@ const Main = () => {
         break;
       case "closeSearch":
         draft.isSearchOpen = false;
+        break;
+      case "toggleChat":
+        draft.isChatOpen = !draft.isChatOpen;
+        break;
+      case "closeChat":
+        draft.isChatOpen = false;
+        break;
+      case "incrementUnreadChatCount":
+        draft.unreadChatCount++;
+        break;
+      case "clearUnreadChatCount":
+        draft.unreadChatCount = 0;
         break;
     }
   }
@@ -92,6 +107,7 @@ const Main = () => {
               </Suspense>
             </div>
           </CSSTransition>
+          <Suspense fallback="">{state.loggedIn && <Chat />}</Suspense>
           <Footer />
         </BrowserRouter>
       </DispatchContext.Provider>
