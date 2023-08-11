@@ -2,10 +2,13 @@
   "name": "react-social-network-app",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "Main.js",
   "scripts": {
-    "dev": "webpack serve",
+    "dev": "npm-run-all -s generate webpackDev",
+    "webpackDev": "webpack serve",
+    "build": "npm-run-all -s generate webpackBuild",
     "webpackBuild": "webpack",
+    "generate": "babel-node --presets=@babel/preset-react,@babel/preset-env generateHtml.js",
     "previewDist": "node previewDist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@babel/core": "^7.21.3",
+    "@babel/node": "^7.22.10",
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-react": "^7.18.6",
     "axios": "^1.3.4",
@@ -25,6 +29,7 @@
     "html-webpack-harddisk-plugin": "^2.0.0",
     "html-webpack-plugin": "^5.5.3",
     "immer": "^10.0.2",
+    "npm-run-all": "^4.1.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^8.0.7",
